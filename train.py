@@ -32,7 +32,7 @@ def train_one_epoch(optimizer,
 
         for seq in y:
             length = (seq != 38).sum()
-            y_true.exten(seq[:length].tolist())
+            y_true.extend(seq[:length].tolist())
             target_lengths.append(length)
 
         target_lengths = torch.tensor(target_lengths, dtype=torch.long).to(device)
@@ -53,7 +53,7 @@ def train_one_epoch(optimizer,
 
         for i in range(y.shape[0]):
             for n in range(75):
-                max = torch.argmax(pred[n][i])
+                max = torch.argmax(pred[i][n])
                 word.append(max.cpu().detach().numpy())
             words.append(word)
             word = []
@@ -65,12 +65,15 @@ def train_one_epoch(optimizer,
     print("Original Sentence:", itos(y[0]) )
     
     total_loss /= len(train_loader)
-    return total_loss.detach().cpu().numpy(), words[0]
+    return total_loss, words[0]
 
 def valid_one_epoch(valid_loader,
                     ctc_loss,
                     device,
                     model):
+    
+    total_loss = 0
+
     for frame, align in tqdm(valid_loader):
         frame = frame.type(torch.FloatTensor)
         frame = frame.to(device)
@@ -85,7 +88,7 @@ def valid_one_epoch(valid_loader,
 
         for seq in y:
             length = (seq != 38).sum()
-            y_true.exten(seq[:length].tolist())
+            y_true.extend(seq[:length].tolist())
             target_lengths.append(length)
 
         target_lengths = torch.tensor(target_lengths, dtype=torch.long).to(device)
@@ -98,7 +101,7 @@ def valid_one_epoch(valid_loader,
         total_loss += loss.item()
 
     total_loss /= len(valid_loader)
-    return total_loss.detach().cpu().numpy()
+    return total_loss
 
 
 def train_lipnet(opts):
@@ -118,11 +121,11 @@ def train_lipnet(opts):
     criterion = nn.CTCLoss(blank=39)
 
     if model == 'conv3dlstm':
-        model = Conv3DLSTMModel(vocab_size, hidden_size)
+        model = Conv3DLSTMModel(vocab_size, hidden_size).to(device)
     elif model == 'conv3dlstmmini':
-        model = Conv3DLSTMModelMini(vocab_size, hidden_size)
+        model = Conv3DLSTMModelMini(vocab_size, hidden_size).to(device)
     else:
-        model = LipNet(vocab_size, hidden_size)
+        model = LipNet(vocab_size, hidden_size).to(device)
     
     optimizer = optim.Adam(model.parameters(), lr)
 
