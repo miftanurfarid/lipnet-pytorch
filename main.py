@@ -1,8 +1,9 @@
 import gdown
 from train import train_lipnet
 import argparse
-import json, os
+import json, os, datetime
 
+start_time = datetime.datetime.now()
 
 def get_parser():
     parser = argparse.ArgumentParser(description='Set up the training parameters.')
@@ -47,3 +48,4 @@ if __name__ == '__main__':
     print("~"*200)
     print("Finished training")
     save_json(summary, "summary.json")
+    print(f"Total time: {start_time - datetime.datetime.now()}")

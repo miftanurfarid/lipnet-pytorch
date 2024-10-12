@@ -115,8 +115,9 @@ def train_lipnet(opts):
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    dataset_path = os.getcwd() + "/data/alignments/s1/*.align"
+    dataset_path = os.getcwd() + "/data/*/*.mpg"
     files = glob.glob(dataset_path)
+    split_range = int(len(files)*0.7)
 
     criterion = nn.CTCLoss(blank=39)
 
@@ -129,8 +130,8 @@ def train_lipnet(opts):
     
     optimizer = optim.Adam(model.parameters(), lr)
 
-    train_data = CustomDataset(files[:900])
-    valid_data = CustomDataset(files[900:])
+    train_data = CustomDataset(files[:split_range])
+    valid_data = CustomDataset(files[split_range:])
 
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     valid_loader = DataLoader(valid_data, batch_size=batch_size, shuffle=True, num_workers=num_workers)
