@@ -1,7 +1,7 @@
 import gdown
 from train import train_lipnet
 import argparse
-import json
+import json, os
 
 
 def get_parser():
@@ -27,15 +27,18 @@ if __name__ == '__main__':
 
     opts = parser.parse_args()
 
-    url = 'https://drive.google.com/uc?id=1YlvpDLix3S-U8fd-gqRwPcWXAXm8JwjL'
-    output = 'data.zip'
+    if not os.path.exists('./data'):
+        url = 'https://drive.google.com/uc?id=1YlvpDLix3S-U8fd-gqRwPcWXAXm8JwjL'
+        output = 'data.zip'
 
-    print("Initializing data ingestion...")
+        print("Initializing data ingestion...")
     
-    gdown.download(url, output, quiet=False)
-    gdown.extractall('data.zip')
+        gdown.download(url, output, quiet=False)
+        gdown.extractall('data.zip')
 
-    print("Data Installed...\n Saved in data/")
+        print("Data Installed...\n Saved in data/")
+    else:
+        print("Data exist. Skip download.")
 
     print("Training...")
     print("~"*200)
